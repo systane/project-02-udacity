@@ -1,34 +1,29 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import {filterImageFromURL, deleteLocalFiles} from '../../../../util/util';
 
 const router: Router = Router();
 
+function deleteLocalImages(imageToDelete:string) {
+    deleteLocalFiles([imageToDelete]);
+}
 
-// @TODO1 IMPLEMENT A RESTFUL ENDPOINT
-  // GET /filteredimage?image_url={{URL}}
-  // endpoint to filter an image from a public url.
-  // IT SHOULD
-  //    1
-  //    1. validate the image_url query
-  //    2. call filterImageFromURL(image_url) to filter the image
-  //    3. send the resulting file in the response
-  //    4. deletes any files on the server on finish of the response
-  // QUERY PARAMATERS
-  //    image_url: URL of a publicly accessible image
-  // RETURNS
-  //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
-
-  /**************************************************************************** */
-
-  //! END @TODO1
-  
-  // Root Endpoint
-  // Displays a simple message to the user
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', 
+    async (req: Request, res: Response, next: NextFunction) => {
     const { image_url } = req.query;
+    
+    //check image_url is valid
+    if(!image_url) {
+        res.status(400).send("image_url is required");
+    }
 
-    res.send("try GET /filteredimage?image_url=" + image_url)
+    let absoluteImagePath: string;
+    try{
+        absoluteImagePath = await filterImageFromURL(image_url); 
+    }catch(error){
+        res.status(500).send("could not filter the image");
+    }
+       
+    res.sendFile(absoluteImagePath, () => deleteLocalImages(absoluteImagePath));
 });
-
 
 export const ImageFilterRouter: Router = router;
