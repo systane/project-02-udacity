@@ -9,13 +9,18 @@ import { IndexRouter } from './controllers/v0/index.router';
   const app = express();
 
   // Set the network port
-  const port = process.env.PORT || 8082;
+  const port = process.env.PORT || 8080;
   
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
   //Root URI call
   app.use('/api/v0/', IndexRouter)
+
+  // Root URI call
+  app.get( "/", async ( req, res ) => {
+    res.send( "/api/v0/" );
+  });
 
   // Start the Server
   app.listen( port, () => {
