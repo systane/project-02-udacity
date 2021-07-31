@@ -13,7 +13,7 @@ router.get('/',
     
     //check image_url is valid
     if(!image_url) {
-        res.status(400).send("image_url is required");
+        res.status(422).send("image_url is missing or not well formed");
     }
 
     let absoluteImagePath: string;
